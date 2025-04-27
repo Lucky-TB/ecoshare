@@ -130,9 +130,16 @@ function Earth() {
 
 export default function HeroGlobe() {
   return (
-    <Canvas className="w-full h-full">
+    <Canvas className="w-full h-full pointer-events-auto">
       <Suspense fallback={null}>
-        <OrbitControls enableZoom={false} enablePan={false} rotateSpeed={0.4} autoRotate autoRotateSpeed={0.5} />
+        <OrbitControls 
+          enableZoom={false} 
+          enablePan={false} 
+          enableRotate={true}
+          rotateSpeed={0.4} 
+          autoRotate 
+          autoRotateSpeed={0.5} 
+        />
         <Earth />
       </Suspense>
     </Canvas>
