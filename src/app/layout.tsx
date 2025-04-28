@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import Header from "@/components/header"
 import "./globals.css"
+import { FirebaseProvider } from "@/firebase/FirebaseProvider"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -40,16 +41,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <main className="min-h-screen">{children}</main>
-        </ThemeProvider>
+      <body className={inter.className} suppressHydrationWarning>
+        <FirebaseProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main className="min-h-screen">{children}</main>
+          </ThemeProvider>
+        </FirebaseProvider>
       </body>
     </html>
   )

@@ -17,34 +17,35 @@ function ImpactTree({ impactScore = 50 }) {
     if (!treeRef.current || !leavesRef.current) return
 
     // Update tree based on impact score
-    treeRef.current.scale.set(growth, growth, growth)
+    treeRef.current.scale.set(growth, growth * 1.5, growth) // Taller growth for more tree-like appearance
 
     // Update leaves
-    const count = Math.floor(growth * 100)
+    const count = Math.floor(growth * 150) // Increased leaf count
     for (let i = 0; i < count; i++) {
       const matrix = new THREE.Matrix4()
 
-      // Position leaves around branches
-      const theta = Math.random() * Math.PI * 2
-      const radius = 0.5 + Math.random() * 1.5 * growth
-      const height = (Math.random() * 2 - 0.5) * growth * 3 + 1
+      // Create a more natural tree crown shape
+      const heightPercent = Math.random()
+      const radius = (1 - heightPercent) * 2 * growth // Wider at bottom, narrower at top
+      const height = heightPercent * 4 * growth + 1 // Distribute leaves vertically
 
+      const theta = Math.random() * Math.PI * 2
       const x = Math.sin(theta) * radius
       const z = Math.cos(theta) * radius
       const y = height
 
-      // Random rotation
+      // Random rotation for natural look
       const rotationX = Math.random() * Math.PI
       const rotationY = Math.random() * Math.PI
       const rotationZ = Math.random() * Math.PI
 
-      // Random scale based on growth
-      const scale = 0.2 + Math.random() * 0.3 * growth
+      // Varied leaf sizes
+      const scale = (0.15 + Math.random() * 0.2) * growth
 
       matrix.compose(
         new THREE.Vector3(x, y, z),
         new THREE.Quaternion().setFromEuler(new THREE.Euler(rotationX, rotationY, rotationZ)),
-        new THREE.Vector3(scale, scale, scale),
+        new THREE.Vector3(scale, scale, scale)
       )
 
       leavesRef.current.setMatrixAt(i, matrix)
@@ -54,76 +55,60 @@ function ImpactTree({ impactScore = 50 }) {
     leavesRef.current.count = count
   }, [growth])
 
-  // Gentle animation
+  // Gentle swaying animation
   useFrame(({ clock }) => {
     if (treeRef.current) {
-      treeRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.1) * 0.05
+      const time = clock.getElapsedTime()
+      treeRef.current.rotation.x = Math.sin(time * 0.5) * 0.02
+      treeRef.current.rotation.z = Math.cos(time * 0.3) * 0.02
     }
   })
 
   return (
-    <group>
+    <group position={[0, -1, 0]}> {/* Center the tree in the scene */}
       {/* Tree trunk and branches */}
       <group ref={treeRef}>
         {/* Main trunk */}
-        <mesh position={[0, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.2, 0.4, 1, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
+        <mesh position={[0, 0.5, 0]} castShadow>
+          <cylinderGeometry args={[0.2, 0.3, 1.5, 8]} />
+          <meshStandardMaterial color="#5D4037" roughness={0.8} />
         </mesh>
 
-        {/* First level branches */}
-        <mesh position={[0, 0.8, 0]} rotation={[0, 0, Math.PI / 4]} castShadow>
-          <cylinderGeometry args={[0.15, 0.25, 1, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
+        {/* Primary branches */}
+        {[0, Math.PI/2, Math.PI, Math.PI*1.5].map((angle, i) => (
+          <group key={i} position={[0, 1.2, 0]} rotation={[0.3, angle, 0]}>
+            <mesh castShadow>
+              <cylinderGeometry args={[0.1, 0.15, 1, 8]} />
+              <meshStandardMaterial color="#5D4037" roughness={0.8} />
+            </mesh>
+          </group>
+        ))}
 
-        <mesh position={[0, 0.8, 0]} rotation={[0, 0, -Math.PI / 4]} castShadow>
-          <cylinderGeometry args={[0.15, 0.25, 1, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        <mesh position={[0, 0.8, 0]} rotation={[Math.PI / 4, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.15, 0.25, 1, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        <mesh position={[0, 0.8, 0]} rotation={[-Math.PI / 4, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.15, 0.25, 1, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        {/* Second level branches */}
-        <mesh position={[0.7, 1.2, 0]} rotation={[0, 0, Math.PI / 6]} castShadow>
-          <cylinderGeometry args={[0.08, 0.15, 0.7, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        <mesh position={[-0.7, 1.2, 0]} rotation={[0, 0, -Math.PI / 6]} castShadow>
-          <cylinderGeometry args={[0.08, 0.15, 0.7, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        <mesh position={[0, 1.2, 0.7]} rotation={[Math.PI / 6, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.08, 0.15, 0.7, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
-
-        <mesh position={[0, 1.2, -0.7]} rotation={[-Math.PI / 6, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.08, 0.15, 0.7, 8]} />
-          <meshStandardMaterial color="#8B4513" roughness={0.8} />
-        </mesh>
+        {/* Secondary branches */}
+        {[0, Math.PI/3, Math.PI*2/3, Math.PI, Math.PI*4/3, Math.PI*5/3].map((angle, i) => (
+          <group key={i} position={[0, 1.8, 0]} rotation={[0.5, angle, 0]}>
+            <mesh castShadow>
+              <cylinderGeometry args={[0.05, 0.1, 0.8, 8]} />
+              <meshStandardMaterial color="#5D4037" roughness={0.8} />
+            </mesh>
+          </group>
+        ))}
       </group>
 
-      {/* Leaves as instanced mesh for performance */}
-      <instancedMesh ref={leavesRef} args={[undefined, undefined, 100]} castShadow>
+      {/* Leaves */}
+      <instancedMesh ref={leavesRef} args={[undefined, undefined, 150]} castShadow>
         <sphereGeometry args={[0.2, 8, 8]} />
-        <meshStandardMaterial color="#4CAF50" roughness={0.5} />
+        <meshStandardMaterial
+          color="#2E7D32"
+          roughness={0.6}
+          metalness={0.1}
+        />
       </instancedMesh>
 
       {/* Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[3, 32]} />
-        <meshStandardMaterial color="#8B4513" roughness={1} />
+        <circleGeometry args={[2.5, 32]} />
+        <meshStandardMaterial color="#795548" roughness={1} />
       </mesh>
     </group>
   )
@@ -132,17 +117,27 @@ function ImpactTree({ impactScore = 50 }) {
 export default function ImpactVisualization({ impactScore = 50 }) {
   return (
     <div className="w-full h-[400px] rounded-lg overflow-hidden">
-      <Canvas shadows camera={{ position: [5, 5, 5], fov: 50 }}>
+      <Canvas
+        shadows
+        camera={{ position: [4, 4, 4], fov: 50 }}
+        className="bg-gradient-to-b from-sky-100 to-sky-50 dark:from-slate-900 dark:to-slate-800"
+      >
         <ambientLight intensity={0.5} />
         <directionalLight
-          position={[10, 10, 5]}
+          position={[5, 8, 5]}
           intensity={1}
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
         <ImpactTree impactScore={impactScore} />
-        <OrbitControls enableZoom={true} minDistance={3} maxDistance={10} enablePan={false} />
+        <OrbitControls
+          enableZoom={true}
+          minDistance={3}
+          maxDistance={10}
+          enablePan={false}
+          maxPolarAngle={Math.PI / 2}
+        />
       </Canvas>
     </div>
   )

@@ -5,9 +5,18 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Menu, X } from "lucide-react"
+import { useFirebase } from "@/firebase/FirebaseProvider"
+import { useRouter } from "next/navigation"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, auth } = useFirebase()
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    await auth.signOut()
+    router.push("/")
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -38,12 +47,19 @@ export default function Header() {
 
         <div className="hidden md:flex items-center gap-4">
           <ModeToggle />
-          <Button variant="outline" size="sm">
-            Sign In
-          </Button>
-          <Button size="sm" className="bg-green-600 hover:bg-green-700">
-            Sign Up
-          </Button>
+          {user ? (
+            <>
+              <span className="text-sm font-medium">{user.email}</span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" onClick={() => router.push("/auth/sign-in")}>Sign In</Button>
+              <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={() => router.push("/auth/sign-up")}>Sign Up</Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -88,12 +104,14 @@ export default function Header() {
               About
             </Link>
             <div className="flex flex-col gap-2 mt-2">
-              <Button variant="outline" onClick={() => setIsMenuOpen(false)}>
-                Sign In
-              </Button>
-              <Button className="bg-green-600 hover:bg-green-700" onClick={() => setIsMenuOpen(false)}>
-                Sign Up
-              </Button>
+              {user ? (
+                <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={() => { setIsMenuOpen(false); router.push("/auth/sign-in") }}>Sign In</Button>
+                  <Button className="bg-green-600 hover:bg-green-700" onClick={() => { setIsMenuOpen(false); router.push("/auth/sign-up") }}>Sign Up</Button>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -2,8 +2,11 @@
 
 import GlobeWrapper from "@/components/globe-wrapper"
 import { Globe, Users, BarChart3 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
+  const router = useRouter()
+
   return (
     <>
       {/* Hero Section */}
@@ -19,10 +22,16 @@ export default function Home() {
             Track, visualize, and reduce your environmental impact. Connect with a global community committed to a sustainable future.
           </p>
           <div className="flex gap-4">
-            <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium">
+            <button 
+              onClick={() => router.push('/auth/sign-up')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-lg font-medium"
+            >
               Get Started
             </button>
-            <button className="border border-input bg-background hover:bg-accent hover:text-accent-foreground px-6 py-3 rounded-lg font-medium">
+            <button 
+              onClick={() => router.push('/about')}
+              className="border border-input bg-background hover:bg-accent hover:text-accent-foreground px-6 py-3 rounded-lg font-medium"
+            >
               Learn More
             </button>
           </div>
@@ -60,7 +69,10 @@ export default function Home() {
           <p className="text-lg mb-8 max-w-xl">
             Be part of a global community working together to create a more sustainable future.
           </p>
-          <button className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow">
+          <button 
+            onClick={() => router.push('/auth/sign-up')}
+            className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow"
+          >
             Sign Up Now
           </button>
         </div>
